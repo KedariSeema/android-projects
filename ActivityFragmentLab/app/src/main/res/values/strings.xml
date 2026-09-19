@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">ActivityFragmentLab</string>
+    <string name="show_fragment">Show Fragments</string>
+    <string name="show_second_activity_way_1">Show Activity Way 1</string>
+    <string name="show_second_activity_way_2">Show Activity Way 2</string>
+    <string name="welcome_to_second_activity">Welcome to Second Activity !!!</string>
+    <string name="change_text">Change Text</string>
+    <string name="hello_this_is_first_fragment">Hello, This is First Fragment</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="second_fragment">Second Fragment</string>
+    <string name="pass_msg_to_first_fragment">pass msg to first fragment</string>
+    <string name="show_2_fragment">show 2 fragment</string>
+    <string name="traditional_approach_findviewbyid_bundle_arguments">Traditional Approach: findViewById + Bundle Arguments</string>
+    <string name="first_fragment">First Fragment</string>
+    <string name="second_fragment_name">Second Fragment</string>
+    <string name="modern_approach_viewbinding_fragment_result_api">Modern Approach: ViewBinding + Fragment Result API</string>
+    <string name="second_activity_first_fragment">Second Activity: First Fragment</string>
+    <string name="second_activity_second_fragment">Second Activity: Second Fragment</string>
+    <string name="second_fragment_second_activity">Second Fragment second Activity</string>
+    <string name="send_msg_back_to_activity_by_way_1">Send Msg 1</string>
+    <string name="send_msg_back_to_activity_by_way_2">Send Msg 2</string>
+</resources>
