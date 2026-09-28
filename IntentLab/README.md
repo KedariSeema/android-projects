@@ -1,247 +1,224 @@
-# LifecycleLab
+# IntentLab
 
-A small Android learning project created to understand and experiment with **Activity lifecycle, Fragment lifecycle, Fragment View lifecycle, ViewBinding, and Fragment back stack behavior**.
+A small Android learning project created to explore and understand **Android Intents** through hands-on experiments.
 
-The project is intentionally simple. The main goal is to observe Android lifecycle behavior through **Logcat experiments** rather than building a feature-heavy application.
+The project demonstrates explicit and implicit Intents, passing data between Activities, opening external applications, using a chooser, handling cases where no suitable Activity is available, and reusing an existing Activity with `FLAG_ACTIVITY_SINGLE_TOP`.
+
+The UI is intentionally simple so the focus remains on understanding Android behavior and observing results through the application and Logcat.
 
 ## What This Project Covers
 
-* Activity lifecycle
-* Fragment lifecycle
-* Fragment View lifecycle
-* `LifecycleOwner`
-* `viewLifecycleOwner`
-* Activity recreation during configuration changes
-* Fragment back stack
-* `addToBackStack()`
-* `replace()` and Fragment navigation
-* Fragment instance vs Fragment View
-* ViewBinding lifecycle
-* Clearing Fragment ViewBinding in `onDestroyView()`
-* Lifecycle observation using `DefaultLifecycleObserver`
-* Using Logcat to understand lifecycle transitions
+* Explicit Intent
+* Implicit Intent
+* Intent extras for passing data
+* Intent actions
+* Intent data and `Uri`
+* Opening a web URL
+* Sharing text using an Intent
+* App chooser
+* Handling `ActivityNotFoundException`
+* Intent flags
+* `FLAG_ACTIVITY_SINGLE_TOP`
+* `onNewIntent()`
+* Activity reuse
+* Activity back-stack behavior
+* Intent resolution
 
 ## Project Structure
 
 ```text
-LifecycleLab
+IntentLab
 │
 ├── MainActivity
-│   └── Hosts the Fragment container
+│   ├── Launch Activity
+│   ├── Share Text
+│   ├── View Site
+│   └── Test Error
 │
-├── FirstFragment
-│   ├── Fragment lifecycle logging
-│   ├── Fragment View lifecycle logging
-│   ├── ViewBinding
-│   └── Navigation to SecondFragment
+├── SecondActivity
+│   ├── Displays data received from MainActivity
+│   └── Reuse Activity experiment
 │
-└── SecondFragment
-    └── Fragment lifecycle logging
+├── IntentConstants.kt
+│   └── Intent keys and Logcat tag
+│
+└── screenshots
+    ├── Main screen
+    ├── Second Activity
+    ├── App chooser
+    ├── Error handling
+    └── Logcat
 ```
 
-## Key Experiments
+## Intent Experiments
 
-### 1. Activity Lifecycle
+### Launch Activity — Explicit Intent
 
-The app was tested through different user and system events such as:
+The first experiment demonstrates an **explicit Intent**.
 
-* App launch
-* Moving the app to the background
-* Returning to the app
-* Pressing Back
-* Screen rotation
+MainActivity directly specifies SecondActivity as the destination and passes small pieces of data through Intent extras.
 
-Example lifecycle sequence during a normal launch:
+SecondActivity receives the data and displays it on the screen.
+
+This demonstrates how one Activity can explicitly launch another Activity and provide initial input.
+
+### Share Text — Implicit Intent
+
+The second experiment demonstrates an **implicit Intent** using a send action.
+
+The application provides text and allows Android to find applications capable of receiving that content.
+
+This demonstrates Intent-based communication between the application and other installed applications.
+
+### View Site — Implicit Intent
+
+The third experiment demonstrates an **implicit Intent with a web URL**.
+
+The application requests that the URL be viewed without specifying a particular browser.
+
+Android resolves an application capable of handling the web request.
+
+### Test Error — No Matching Activity
+
+The fourth experiment demonstrates what happens when no installed Activity can handle an Intent.
+
+The application intentionally sends an unsupported action and handles the resulting `ActivityNotFoundException`.
+
+Instead of allowing the application to fail, it displays an error message explaining that no suitable Activity is available.
+
+### Reuse Activity — `FLAG_ACTIVITY_SINGLE_TOP`
+
+The fifth experiment demonstrates Activity reuse.
+
+SecondActivity launches SecondActivity again using `FLAG_ACTIVITY_SINGLE_TOP`.
+
+Because the existing SecondActivity is already at the top of the task, Android reuses that Activity instance and delivers the new Intent through `onNewIntent()` instead of creating another Activity instance.
+
+This experiment is verified using both the application UI and Logcat.
+
+## Activity Reuse Flow
 
 ```text
-onCreate()
-onStart()
-onResume()
+MainActivity
+     ↓
+SecondActivity
+     ↓
+Reuse Activity
+     ↓
+FLAG_ACTIVITY_SINGLE_TOP
+     ↓
+Existing SecondActivity reused
+     ↓
+onNewIntent()
 ```
 
-During rotation, the existing Activity is destroyed and a new Activity instance is created because of the configuration change.
+The important observation is that the existing Activity instance is reused when it is already at the top of the task.
 
----
+## Key Concepts Learned
 
-### 2. Fragment Lifecycle
+### Explicit vs Implicit Intent
 
-The project logs the major Fragment lifecycle callbacks:
+An explicit Intent identifies a specific component.
 
-```text
-onAttach()
-onCreate()
-onCreateView()
-onViewCreated()
-onStart()
-onResume()
-onPause()
-onStop()
-onDestroyView()
-onDestroy()
-onDetach()
-```
+An implicit Intent describes an action and optional data, allowing Android to find a suitable component.
 
-This was used to understand the difference between the lifetime of the Fragment object and the lifetime of its View.
+### Intent Extras
 
----
+Intent extras can be used to pass small pieces of data between components, such as IDs or short messages.
 
-### 3. Fragment View Lifecycle
+### Intent Actions
 
-One of the main experiments was observing the separate lifecycle of the Fragment's View using:
+Actions describe the operation that should be performed, such as viewing or sending content.
 
-```kotlin
-viewLifecycleOwner.lifecycle
-```
+### Intent Data
 
-The project uses `DefaultLifecycleObserver` to log View lifecycle events such as:
+Intent data is commonly represented using a `Uri` and can be used to describe the resource or content associated with an action.
 
-```text
-VIEW → onCreate
-VIEW → onStart
-VIEW → onResume
-VIEW → onPause
-VIEW → onStop
-VIEW → onDestroy
-```
+### Intent Resolution
 
-This helped demonstrate that a Fragment can remain alive even after its View has been destroyed.
+For implicit Intents, Android looks for components that can handle the requested action, data, and categories.
 
----
+### App Chooser
 
-### 4. Fragment Instance vs Fragment View
+When multiple applications can handle an operation, an Intent chooser can allow the user to select the application to use.
 
-The project uses a simple counter and Fragment `hashCode()` to observe Fragment recreation behavior.
+### ActivityNotFoundException
 
-For example:
+An implicit Intent may fail when no installed application can handle the request. This project demonstrates handling that situation gracefully.
 
-```text
-FirstFragment onCreateView instance=155970492, count=1
-```
+### `FLAG_ACTIVITY_SINGLE_TOP`
 
-After navigating to another Fragment and returning:
+This flag allows an existing Activity at the top of the task to be reused instead of creating another instance.
 
-```text
-FirstFragment onCreateView instance=155970492, count=2
-```
+### `onNewIntent()`
 
-The same Fragment instance was reused, while its View was created again.
+When an existing Activity is reused for a new Intent, the new Intent can be delivered through `onNewIntent()`.
 
-This demonstrates an important Android concept:
+## Screenshots
 
-> A Fragment object can survive while its View is destroyed and later recreated.
+### Main Screen
 
----
+The main screen provides access to all Intent experiments.
 
-### 5. Fragment Back Stack
+![IntentLab Main Screen](screenshots/main_screen.png)
 
-The project also experiments with:
+### Second Activity
 
-```kotlin
-replace(...)
-    .addToBackStack(null)
-    .commit()
-```
+Shows the data received from MainActivity through Intent extras.
 
-This demonstrates that `addToBackStack()` stores the **Fragment transaction** in the FragmentManager back stack.
+![Second Activity](screenshots/second_activity.png)
 
-When the transaction is popped using the system Back action, the previous Fragment state is restored and its View can be recreated.
+### App Chooser
 
----
+Demonstrates the chooser displayed when multiple applications can handle the Share Text request.
 
-### 6. ViewBinding Lifecycle
+![App Chooser](screenshots/app_chooser.png)
 
-`FirstFragment` uses ViewBinding with a nullable backing property:
+### Error Handling
 
-```kotlin
-private var _binding: FragmentFirstBinding? = null
+Demonstrates the message shown when no Activity can handle the requested Intent.
 
-private val binding: FragmentFirstBinding
-    get() = _binding!!
-```
+![No Activity Found](screenshots/no_activity_found.png)
 
-The binding is created when the Fragment View is created:
+### Logcat
 
-```kotlin
-_binding = FragmentFirstBinding.inflate(
-    inflater,
-    container,
-    false
-)
-```
+Demonstrates the Activity reuse experiment, including `onNewIntent()` being called instead of creating another Activity instance.
 
-and cleared when the View is destroyed:
-
-```kotlin
-override fun onDestroyView() {
-    _binding = null
-    super.onDestroyView()
-}
-```
-
-This follows the Fragment View lifecycle:
-
-```text
-onCreateView()
-      ↓
-onViewCreated()
-      ↓
-UI interaction
-      ↓
-onDestroyView()
-      ↓
-_binding = null
-```
-
-The important idea is that ViewBinding should only be used while the Fragment's View exists.
-
-## What I Learned
-
-Through this project I practiced and verified:
-
-* An Activity and Fragment have different lifecycles.
-* A Fragment has both a **Fragment lifecycle** and a **View lifecycle**.
-* `viewLifecycleOwner` represents the lifecycle of the current Fragment View.
-* A Fragment's View can be destroyed while the Fragment object remains alive.
-* The same Fragment instance can receive multiple `onCreateView()` calls.
-* `addToBackStack()` works with Fragment transactions.
-* `replace()` can destroy the current Fragment View.
-* ViewBinding should be cleared in `onDestroyView()`.
-* Logcat is useful for understanding Android lifecycle behavior in real applications.
+![Logcat](screenshots/logcat_on_new_intent.png)
 
 ## Technologies Used
 
 * Kotlin
 * Android SDK
-* AndroidX Fragment
 * AndroidX AppCompat
-* ViewBinding
-* FragmentManager
-* Lifecycle APIs
-* Android Studio
+* Intent API
+* Activity lifecycle APIs
+* `Uri`
+* `ActivityNotFoundException`
+* Logcat
+
+## Topics Covered
+
+* Android Intent
+* Explicit Intent
+* Implicit Intent
+* Intent extras
+* Intent action
+* Intent data
+* URI handling
+* Intent resolution
+* Chooser
+* ActivityNotFoundException
+* Intent flags
+* `FLAG_ACTIVITY_SINGLE_TOP`
+* `onNewIntent()`
+* Activity instance reuse
+* Activity back stack
 
 ## Purpose of the Project
 
 This is a **learning and interview-preparation project**, not a production application.
 
-The purpose is to build practical understanding of Android lifecycle behavior that is commonly relevant when working with:
+The purpose of the project is to build practical understanding of how Android Intents work and how Activities communicate with other Activities and installed applications.
 
-* UI state
-* Fragment navigation
-* configuration changes
-* ViewBinding
-* memory management
-* lifecycle-aware components
-* Android debugging
-
-## Future Reference
-
-This project is intentionally kept small so it can be revisited later when working on more advanced topics such as:
-
-* ViewModel
-* lifecycle-aware state handling
-* Coroutines
-* Flow
-* Navigation
-* configuration/state restoration
-
-
+It also serves as a small reference project that can be revisited when preparing for Android interviews.
