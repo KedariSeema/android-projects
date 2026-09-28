@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">IntentLab</string>
+    <string name="launch_activity">Launch Activity</string>
+    <string name="main_title">A hands-on Android project demonstrating explicit and implicit Intents, Intent extras, app selection, and handling cases where no suitable Activity is available.</string>
+    <string name="view_site">View Site</string>
+    <string name="share_text">Share Text</string>
+    <string name="test_error">Test Error</string>
+    <string name="reuse_intent">Reuse Activity</string>
+    <string name="dialog_title">Sorry. No Activity Found.</string>
+    <string name="dialog_message">No Application found on this device that can handle this Intent.</string>
+    <string name="dialog_button_ok">Ok</string>
+    <string name="welcome_to_new_actviity">Welcome to New Actviity</string>
+</resources>
