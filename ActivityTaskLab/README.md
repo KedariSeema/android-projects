@@ -1,190 +1,125 @@
-# IntentLab
+# ActivityTaskLab
 
-A small Android learning project created to explore and understand **Android Intents** through hands-on experiments.
+A small Android learning project created to understand **Activity Tasks, Activity Back Stack, launch modes, and Intent flags** through hands-on experiments.
 
-The project demonstrates explicit and implicit Intents, passing data between Activities, opening external applications, using a chooser, handling cases where no suitable Activity is available, and reusing an existing Activity with `FLAG_ACTIVITY_SINGLE_TOP`.
-
-The UI is intentionally simple so the focus remains on understanding Android behavior and observing results through the application and Logcat.
+The project uses multiple Activities and Logcat to observe how Android creates, reuses, removes, and restores Activity instances.
 
 ## What This Project Covers
 
-* Explicit Intent
-* Implicit Intent
-* Intent extras for passing data
-* Intent actions
-* Intent data and `Uri`
-* Opening a web URL
-* Sharing text using an Intent
-* App chooser
-* Handling `ActivityNotFoundException`
-* Intent flags
-* `FLAG_ACTIVITY_SINGLE_TOP`
+* Android Task
+* Activity Back Stack
+* Activity instance creation and reuse
+* `standard` launch mode
+* `singleTop`
+* `singleTask`
+* `singleInstance`
 * `onNewIntent()`
-* Activity reuse
-* Activity back-stack behavior
-* Intent resolution
+* `FLAG_ACTIVITY_SINGLE_TOP`
+* `FLAG_ACTIVITY_CLEAR_TOP`
+* `FLAG_ACTIVITY_NEW_TASK`
+* `FLAG_ACTIVITY_CLEAR_TASK`
+* `finish()`
+* Back button behavior
+* Home and Recents behavior
 
 ## Project Structure
 
-```text
-IntentLab
+```text id="4xk6a1"
+ActivityTaskLab
 │
 ├── MainActivity
-│   ├── Launch Activity
-│   ├── Share Text
-│   ├── View Site
-│   └── Test Error
-│
 ├── SecondActivity
-│   ├── Displays data received from MainActivity
-│   └── Reuse Activity experiment
-│
-├── IntentConstants.kt
-│   └── Intent keys and Logcat tag
-│
+├── ThirdActivity
+├── FourthActivity
 └── screenshots
-    ├── Main screen
-    ├── Second Activity
-    ├── App chooser
-    ├── Error handling
-    └── Logcat
 ```
 
-## Intent Experiments
+## Activity Task Experiments
 
-### Launch Activity — Explicit Intent
+### Activity Back Stack
 
-The first experiment demonstrates an **explicit Intent**.
+Built a simple Activity flow:
 
-MainActivity directly specifies SecondActivity as the destination and passes small pieces of data through Intent extras.
+```text id="7l4mpe"
+A → B → C → D
+```
 
-SecondActivity receives the data and displays it on the screen.
+Observed how Activities are added to the task stack and how pressing Back removes the top Activity and reveals the previous one.
 
-This demonstrates how one Activity can explicitly launch another Activity and provide initial input.
+### Standard Launch Mode
 
-### Share Text — Implicit Intent
+Launched the same Activity multiple times and verified through `hashCode()` that Android creates separate Activity instances.
 
-The second experiment demonstrates an **implicit Intent** using a send action.
+### SingleTop
 
-The application provides text and allows Android to find applications capable of receiving that content.
+Used `singleTop` behavior to verify that an Activity already at the top of the stack is reused instead of creating another instance.
 
-This demonstrates Intent-based communication between the application and other installed applications.
+The reused Activity receives the new Intent through `onNewIntent()`.
 
-### View Site — Implicit Intent
+### Clear Top
 
-The third experiment demonstrates an **implicit Intent with a web URL**.
+Used `FLAG_ACTIVITY_CLEAR_TOP` with the stack:
 
-The application requests that the URL be viewed without specifying a particular browser.
+```text id="e2h7pn"
+A → B → C → D
+```
 
-Android resolves an application capable of handling the web request.
+Launching B cleared the Activities above it.
 
-### Test Error — No Matching Activity
+The experiment also demonstrated that with the default `standard` behavior, the existing B instance can be destroyed and a new B instance created.
 
-The fourth experiment demonstrates what happens when no installed Activity can handle an Intent.
+### Clear Top + SingleTop
 
-The application intentionally sends an unsupported action and handles the resulting `ActivityNotFoundException`.
+Combined `FLAG_ACTIVITY_CLEAR_TOP` and `FLAG_ACTIVITY_SINGLE_TOP`.
 
-Instead of allowing the application to fail, it displays an error message explaining that no suitable Activity is available.
+Activities above B were removed, while the existing B instance was reused and received the new Intent through `onNewIntent()`.
 
-### Reuse Activity — `FLAG_ACTIVITY_SINGLE_TOP`
+### SingleTask
 
-The fifth experiment demonstrates Activity reuse.
+Configured an Activity with `singleTask` and observed that Android reused the existing Activity instance and removed Activities above it.
 
-SecondActivity launches SecondActivity again using `FLAG_ACTIVITY_SINGLE_TOP`.
+### SingleInstance
 
-Because the existing SecondActivity is already at the top of the task, Android reuses that Activity instance and delivers the new Intent through `onNewIntent()` instead of creating another Activity instance.
+Experimented with `singleInstance` to observe its separate task behavior and Activity isolation.
 
-This experiment is verified using both the application UI and Logcat.
+### Reset Task
+
+Used `FLAG_ACTIVITY_NEW_TASK` together with `FLAG_ACTIVITY_CLEAR_TASK` to clear the existing task and start a new root Activity.
+
+This demonstrates how an Activity stack can be completely reset, such as after logout or authentication flows.
 
 ## Activity Reuse Flow
 
-```text
-MainActivity
-     ↓
-SecondActivity
-     ↓
-Reuse Activity
-     ↓
-FLAG_ACTIVITY_SINGLE_TOP
-     ↓
-Existing SecondActivity reused
-     ↓
-onNewIntent()
+```text id="gj6x1u"
+A → B → C → D
+        │
+        ├── CLEAR_TOP
+        │      ↓
+        │    A → B(new)
+        │
+        ├── CLEAR_TOP + SINGLE_TOP
+        │      ↓
+        │    A → B(same)
+        │
+        └── singleTask
+               ↓
+             A → B(same)
 ```
-
-The important observation is that the existing Activity instance is reused when it is already at the top of the task.
 
 ## Key Concepts Learned
 
-### Explicit vs Implicit Intent
-
-An explicit Intent identifies a specific component.
-
-An implicit Intent describes an action and optional data, allowing Android to find a suitable component.
-
-### Intent Extras
-
-Intent extras can be used to pass small pieces of data between components, such as IDs or short messages.
-
-### Intent Actions
-
-Actions describe the operation that should be performed, such as viewing or sending content.
-
-### Intent Data
-
-Intent data is commonly represented using a `Uri` and can be used to describe the resource or content associated with an action.
-
-### Intent Resolution
-
-For implicit Intents, Android looks for components that can handle the requested action, data, and categories.
-
-### App Chooser
-
-When multiple applications can handle an operation, an Intent chooser can allow the user to select the application to use.
-
-### ActivityNotFoundException
-
-An implicit Intent may fail when no installed application can handle the request. This project demonstrates handling that situation gracefully.
-
-### `FLAG_ACTIVITY_SINGLE_TOP`
-
-This flag allows an existing Activity at the top of the task to be reused instead of creating another instance.
-
-### `onNewIntent()`
-
-When an existing Activity is reused for a new Intent, the new Intent can be delivered through `onNewIntent()`.
-
-## Screenshots
-
-### Main Screen
-
-The main screen provides access to all Intent experiments.
-
-![IntentLab Main Screen](screenshots/main_screen.png)
-
-### Second Activity
-
-Shows the data received from MainActivity through Intent extras.
-
-![Second Activity](screenshots/second_activity.png)
-
-### App Chooser
-
-Demonstrates the chooser displayed when multiple applications can handle the Share Text request.
-
-![App Chooser](screenshots/app_chooser.png)
-
-### Error Handling
-
-Demonstrates the message shown when no Activity can handle the requested Intent.
-
-![No Activity Found](screenshots/no_activity_found.png)
-
-### Logcat
-
-Demonstrates the Activity reuse experiment, including `onNewIntent()` being called instead of creating another Activity instance.
-
-![Logcat](screenshots/logcat_on_new_intent.png)
+* A **Task** represents a user's unit of work containing Activities.
+* The **Activity Back Stack** maintains the order of Activities in a task.
+* `startActivity()` normally adds a new Activity to the stack.
+* `finish()` removes the current Activity.
+* Back normally pops the top Activity.
+* Home backgrounds the task rather than popping its Activities.
+* `standard` can create multiple instances of the same Activity.
+* `singleTop` reuses an Activity only when it is already at the top.
+* `singleTask` can reuse an existing Activity and clear Activities above it.
+* `singleInstance` places an Activity in its own task.
+* `onNewIntent()` is used when an existing Activity instance receives a new Intent.
+* Intent flags can change Activity and task behavior.
 
 ## Technologies Used
 
@@ -193,32 +128,28 @@ Demonstrates the Activity reuse experiment, including `onNewIntent()` being call
 * AndroidX AppCompat
 * Intent API
 * Activity lifecycle APIs
-* `Uri`
-* `ActivityNotFoundException`
 * Logcat
 
 ## Topics Covered
 
-* Android Intent
-* Explicit Intent
-* Implicit Intent
-* Intent extras
-* Intent action
-* Intent data
-* URI handling
-* Intent resolution
-* Chooser
-* ActivityNotFoundException
+* Android Tasks
+* Activity Back Stack
+* Activity launch modes
+* `standard`
+* `singleTop`
+* `singleTask`
+* `singleInstance`
 * Intent flags
-* `FLAG_ACTIVITY_SINGLE_TOP`
+* `CLEAR_TOP`
+* `SINGLE_TOP`
+* `NEW_TASK`
+* `CLEAR_TASK`
 * `onNewIntent()`
-* Activity instance reuse
-* Activity back stack
+* Activity instance management
+* Back, Home, and Recents behavior
 
 ## Purpose of the Project
 
 This is a **learning and interview-preparation project**, not a production application.
 
-The purpose of the project is to build practical understanding of how Android Intents work and how Activities communicate with other Activities and installed applications.
-
-It also serves as a small reference project that can be revisited when preparing for Android interviews.
+The purpose is to build practical understanding of Activity task management and navigation behavior and to provide a small reference project for Android interview preparation.
