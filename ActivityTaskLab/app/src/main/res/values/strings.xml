@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ActivityTaskLab</string>
+    <string name="main_activity">MainActivity</string>
+    <string name="launch_second_activity">Launch Second Activity</string>
+    <string name="second_activity">Second Activity</string>
+    <string name="launch_third_activity">Launch Third Activity</string>
+    <string name="third_activity">Third Activity</string>
+    <string name="relaunch_same_activity">ReLaunch Same Activity</string>
+    <string name="fourth_activity">Fourth Activity</string>
+    <string name="launch_fourth_activity">Launch Fourth Activity</string>
+    <string name="reset_task">Reset Task</string>
+</resources>
